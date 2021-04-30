@@ -52,7 +52,7 @@ public class CheckstyleSourceCodeFileAnalyzerPlugin
   }
 
   private Configuration createDefaultConfiguration() throws CheckstyleException {
-    return getConfigurationFromStream(getClass().getResourceAsStream("/checkstyle.xml"));
+    return getConfigurationFromStream(getClass().getResourceAsStream("/checkstyle-custom.xml"));
   }
 
   @Override
