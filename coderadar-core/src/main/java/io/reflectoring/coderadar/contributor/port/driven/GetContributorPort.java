@@ -8,4 +8,17 @@ public interface GetContributorPort {
    * @return Contributor with the supplied id.
    */
   Contributor get(long id);
+
+  /**
+   * @param id of the contributor.
+   * @return Whether a contributor with the supplied id exists.
+   */
+  Boolean existsById(long id);
+
+  /**
+   * @param id of the contributor
+   * @param userId of the user
+   * @return Whether a contributor for a given userId exists.
+   */
+  Boolean existsByIdAndUserId(long id, long userId);
 }

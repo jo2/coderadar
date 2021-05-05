@@ -15,6 +15,7 @@ public class ContributorEntity {
   private String displayName;
   private Set<String> names;
   private Set<String> emails;
+  private Long userId;
 
   @Relationship(type = "WORKS_ON")
   private List<ProjectEntity> projects = new ArrayList<>();

@@ -21,4 +21,14 @@ public class GetContributorAdapter implements GetContributorPort {
         contributorRepository.findById(id).orElseThrow(() -> new ContributorNotFoundException(id));
     return mapper.mapGraphObject(entity);
   }
+
+  @Override
+  public Boolean existsById(long id) {
+    return contributorRepository.existsById(id);
+  }
+
+  @Override
+  public Boolean existsByIdAndUserId(long id, long userId) {
+    return contributorRepository.existsByIdAndUserId(id, userId);
+  }
 }

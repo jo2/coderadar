@@ -11,4 +11,5 @@ public class Contributor {
   private String displayName;
   private Set<String> names;
   private Set<String> emailAddresses;
+  private Long userId;
 }
