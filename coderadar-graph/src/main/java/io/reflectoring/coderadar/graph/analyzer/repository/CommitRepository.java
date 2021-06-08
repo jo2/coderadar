@@ -177,4 +177,8 @@ public interface CommitRepository extends Neo4jRepository<CommitEntity, Long> {
           + "RETURN c ORDER BY c.timestamp DESC")
   List<CommitEntity> findByProjectIdBranchNameAndContributor(
       long projectId, @NonNull String branchName, @NonNull String email);
+
+  CommitEntity findByHash(String hash);
+
+  boolean existsByHash(String hash);
 }

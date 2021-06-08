@@ -31,4 +31,14 @@ public class GetContributorAdapter implements GetContributorPort {
   public Boolean existsByIdAndUserId(long id, long userId) {
     return contributorRepository.existsByIdAndUserId(id, userId);
   }
+
+  @Override
+  public Boolean existsByAuthorName(String authorName) {
+    return contributorRepository.existsByNamesContains(authorName);
+  }
+
+  @Override
+  public Contributor getByAuthorName(String authorName) {
+    return mapper.mapGraphObject(contributorRepository.findByNamesContains(authorName));
+  }
 }

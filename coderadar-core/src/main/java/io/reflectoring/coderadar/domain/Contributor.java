@@ -12,4 +12,5 @@ public class Contributor {
   private Set<String> names;
   private Set<String> emailAddresses;
   private Long userId;
+  private int pointsOverAll;
 }

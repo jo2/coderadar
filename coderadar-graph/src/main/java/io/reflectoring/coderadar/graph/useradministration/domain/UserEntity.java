@@ -16,6 +16,10 @@ public class UserEntity {
   private String username;
   private String password;
   private boolean platformAdmin = false;
+  private int pointsInLevel;
+  private int pointsOverAll;
+  private int level;
+  private int coins;
 
   @Relationship(value = "IS")
   private List<ContributorEntity> contributors;

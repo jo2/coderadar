@@ -22,6 +22,7 @@ public class AnalyzeCommitService {
   private final AnalyzeFileService analyzeFileService;
   private final GetRawCommitContentPort getRawCommitContentPort;
   private final CoderadarConfigurationProperties coderadarConfigurationProperties;
+  private final CalculateScoreService calculateScoreService;
 
   /**
    * Analyzes a single commit.
@@ -34,10 +35,15 @@ public class AnalyzeCommitService {
   public List<MetricValue> analyzeCommit(
       AnalyzeCommitDto commit, Project project, List<SourceCodeFileAnalyzerPlugin> analyzers) {
     List<MetricValue> metricValues = new ArrayList<>();
+
+    // TODO push project at commit to sonarqube for analysis
+
     analyzeBulk(commit.getHash(), commit.getChangedFiles(), analyzers, project)
         .forEach(
             (fileId, fileMetrics) ->
                 metricValues.addAll(getMetrics(fileMetrics, commit.getId(), fileId)));
+
+    calculateScoreService.calculateScoreForCommit(commit, metricValues);
     return metricValues;
   }
 
@@ -95,5 +101,9 @@ public class AnalyzeCommitService {
               fileMetrics.getFindings(metric)));
     }
     return metricValues;
+  }
+
+  private Map<Long, FileMetrics> analyzeProjectAtCommit(long commitHash, AnalyzeFileDto[] files) {
+
   }
 }

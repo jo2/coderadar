@@ -21,4 +21,20 @@ public interface GetContributorPort {
    * @return Whether a contributor for a given userId exists.
    */
   Boolean existsByIdAndUserId(long id, long userId);
+
+  /**
+   * Whether a contributor exists by an authorName.
+   *
+   * @param authorName The authorName of the contributor.
+   * @return Whether the contributor exists or not.
+   */
+  Boolean existsByAuthorName(String authorName);
+
+  /**
+   * The contributor by an authorName.
+   *
+   * @param authorName The authorName of the contributor.
+   * @return The contributor with the given authorName.
+   */
+  Contributor getByAuthorName(String authorName);
 }

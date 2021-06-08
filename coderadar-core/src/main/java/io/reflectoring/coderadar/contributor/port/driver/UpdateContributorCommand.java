@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UpdateContributorCommand {
   @NotBlank private String displayName;
+  @NotBlank private int pointsOverAll;
 }

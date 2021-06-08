@@ -12,4 +12,8 @@ public class User {
   private String password;
   private boolean platformAdmin = false;
   private List<Contributor> contributors;
+  private int pointsInLevel;
+  private int pointsOverAll;
+  private int level;
+  private int coins;
 }

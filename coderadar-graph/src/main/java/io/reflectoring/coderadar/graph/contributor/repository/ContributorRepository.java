@@ -37,4 +37,8 @@ public interface ContributorRepository extends Neo4jRepository<ContributorEntity
   List<ContributorEntity> findAllByUserId(long userId);
 
   Boolean existsByIdAndUserId(long id, long userId);
+
+  Boolean existsByNamesContains(String authorName);
+
+  ContributorEntity findByNamesContains(String authorName);
 }

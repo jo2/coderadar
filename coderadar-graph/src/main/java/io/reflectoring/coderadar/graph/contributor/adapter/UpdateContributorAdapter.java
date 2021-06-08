@@ -18,6 +18,7 @@ public class UpdateContributorAdapter implements UpdateContributorPort {
     ContributorEntity contributor =
         contributorRepository.findById(id).orElseThrow(() -> new ContributorNotFoundException(id));
     contributor.setDisplayName(command.getDisplayName());
+    contributor.setPointsOverAll(command.getPointsOverAll());
     contributorRepository.save(contributor, 0);
   }
 }
