@@ -1,0 +1,15 @@
+apply plugin: "com.diffplug.gradle.spotless"
+apply plugin: "jacoco"
+
+spotless {
+    java {
+        googleJavaFormat()
+    }
+}
+
+dependencies {
+    implementation 'org.springframework:spring-web:5.2.3.RELEASE'
+    implementation 'com.google.guava:guava:r05'
+    implementation 'org.slf4j:slf4j-api:1.7.12'
+    compile project(":coderadar-plugin-api")
+}

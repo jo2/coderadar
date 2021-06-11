@@ -1,6 +1,7 @@
 include 'coderadar-plugin-api'
 include 'coderadar-plugins:loc-analyzer-plugin'
 include 'coderadar-plugins:checkstyle-analyzer-plugin'
+include 'coderadar-plugins:sonar-scanner-plugin'
 include 'coderadar-core'
 include 'coderadar-app'
 include 'coderadar-rest'

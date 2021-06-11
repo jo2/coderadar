@@ -18,6 +18,7 @@ public class CloneRepositoryAdapter implements CloneRepositoryPort {
       throws UnableToCloneRepositoryException {
     try {
       // TODO: support progress monitoring
+      // TODO try non bare repos
       CloneCommand cloneCommand =
           Git.cloneRepository()
               .setURI(cloneRepositoryCommand.getRemoteUrl())
