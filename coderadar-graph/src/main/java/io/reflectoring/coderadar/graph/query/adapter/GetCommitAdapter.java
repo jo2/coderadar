@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class GetCommitAdapter implements GetCommitPort {
 
     private final CommitRepository commitRepository;
-    private final CommitBaseDataMapper commitBaseDataMapper;
+    private final CommitBaseDataMapper commitBaseDataMapper = new CommitBaseDataMapper();
 
     @Override
     public Commit getCommitById(long commitId) {

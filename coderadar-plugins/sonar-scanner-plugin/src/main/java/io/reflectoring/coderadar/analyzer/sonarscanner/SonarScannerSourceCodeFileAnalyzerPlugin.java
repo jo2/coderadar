@@ -1,15 +1,12 @@
 package io.reflectoring.coderadar.analyzer.sonarscanner;
 
 import io.reflectoring.coderadar.plugin.api.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -68,6 +65,7 @@ public class SonarScannerSourceCodeFileAnalyzerPlugin
         Objects.requireNonNull(nextPageResponse).getComponents()
                 .forEach(component -> this.componentMap.put(component.getPath(), component));
       }
+      System.out.println("configured: " + this.componentMap.size());
     } catch (RestClientException e) {
       e.printStackTrace();
     }

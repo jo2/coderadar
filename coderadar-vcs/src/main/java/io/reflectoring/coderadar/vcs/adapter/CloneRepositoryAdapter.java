@@ -22,8 +22,7 @@ public class CloneRepositoryAdapter implements CloneRepositoryPort {
       CloneCommand cloneCommand =
           Git.cloneRepository()
               .setURI(cloneRepositoryCommand.getRemoteUrl())
-              .setDirectory(new File(cloneRepositoryCommand.getLocalDir()))
-              .setBare(true);
+              .setDirectory(new File(cloneRepositoryCommand.getLocalDir()));
       if (cloneRepositoryCommand.getUsername() != null
           && cloneRepositoryCommand.getPassword() != null) {
         cloneCommand.setCredentialsProvider(

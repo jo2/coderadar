@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GetContributorsByUserAdapter implements GetContributorsByUserPort {
     private final ContributorRepository contributorRepository;
-    private final ContributorMapper contributorMapper;
+    private final ContributorMapper contributorMapper = new ContributorMapper();
 
     @Override
     public List<Contributor> getContributorsByUser(Long userId) {

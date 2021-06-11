@@ -1,10 +1,12 @@
 package io.reflectoring.coderadar.analyzer.service;
 
+import io.reflectoring.coderadar.domain.ProjectResponse;
 import io.reflectoring.coderadar.plugin.api.AnalyzerException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,17 +21,17 @@ public class SonarQubeService {
 
     private static final String HOST = "http://localhost:9000/";
     private static final String TOKEN = "564b0cdaa4b2b935648e3397ccf33d77cf224c32";
-    private final RestTemplate restTemplate;
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    public void prepareSonarAnalysis(long commitHash, String workDir) {
-        // http://localhost:9000/web_api/api/projects/create
+    public void prepareSonarAnalysis(String commitHash, String workDir) {
         String createQuery = HOST + "web_api/api/projects/create?name=" + commitHash + "&project=" + commitHash;
-        restTemplate.postForEntity(createQuery, new HttpEntity(createHeaders(TOKEN)), Object.class);
+        restTemplate.postForEntity(createQuery, new HttpEntity(createHeaders(TOKEN)), String.class);
+        System.out.println(commitHash);
 
         String hostArg = " -D sonar.host.url=http://localhost:9000";
         String projectKeyArg = " -D sonar.projectKey=" + commitHash;
         String projectNameArg = " -D sonar.projectName=" + commitHash;
-        String gitCommand = "git checkout " + commitHash;
+        String gitCommand = "git checkout " + commitHash + " -f";
         String sonarCommand = "sonar-scanner" + hostArg + projectKeyArg + projectNameArg;
 
         ProcessBuilder builder = new ProcessBuilder();
@@ -42,11 +44,13 @@ public class SonarQubeService {
         builder.directory(new File(workDir));
 
         try {
+            builder.redirectError(ProcessBuilder.Redirect.INHERIT);
+            builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
             Process process = builder.start();
             int exitCode = process.waitFor();
-            log.info("analysis finished with exit code: " + exitCode);
+            log.info("prepare finished with exit code: " + exitCode);
             if (exitCode != 0) {
-                throw new AnalyzerException("Analysing process finished with exit code " + exitCode);
+                throw new AnalyzerException("Preparation process finished with exit code " + exitCode);
             }
         } catch (IOException | InterruptedException e) {
             log.error("Error during analysing process", e);

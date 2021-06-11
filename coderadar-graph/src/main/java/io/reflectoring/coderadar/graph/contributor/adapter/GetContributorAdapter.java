@@ -39,6 +39,6 @@ public class GetContributorAdapter implements GetContributorPort {
 
   @Override
   public Contributor getByAuthorName(String authorName) {
-    return mapper.mapGraphObject(contributorRepository.findByNamesContains(authorName));
+    return mapper.mapGraphObject(contributorRepository.findByNamesContains(authorName).get(0));
   }
 }

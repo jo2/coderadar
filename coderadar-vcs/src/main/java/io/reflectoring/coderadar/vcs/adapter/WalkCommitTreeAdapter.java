@@ -24,6 +24,7 @@ public class WalkCommitTreeAdapter implements WalkCommitTreePort {
       ObjectId commitId = git.getRepository().resolve(name);
 
       RevWalk walk = new RevWalk(git.getRepository());
+      walk.markStart(walk.parseCommit(git.getRepository().resolve("HEAD")));
       RevCommit commit = walk.parseCommit(commitId);
       RevTree tree = commit.getTree();
       TreeWalk treeWalk = new TreeWalk(git.getRepository());

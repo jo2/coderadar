@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,8 @@ public class AnalyzeCommitService {
   private final CalculateScoreService calculateScoreService;
   private final SonarQubeService sonarQubeService;
 
+  private static final String SONAR_PLUGIN_NAME = "io.reflectoring.coderadar.analyzer.sonarscanner.SonarScannerSourceCodeFileAnalyzerPlugin";
+
   /**
    * Analyzes a single commit.
    *
@@ -43,20 +46,20 @@ public class AnalyzeCommitService {
       AnalyzeCommitDto commit, Project project, List<SourceCodeFileAnalyzerPlugin> analyzers) {
     List<MetricValue> metricValues = new ArrayList<>();
 
-    Stream<SourceCodeFileAnalyzerPlugin> analyzerStream = analyzers.stream()
-            .filter(analyzer -> analyzer.getClass().getName().equals("SonarScannerSourceCodeFileAnalyzerPlugin"));
-
     // if sonar scanner plugin is configured, push project at commit to sonarqube for analysis
-    if (analyzerStream.count() >= 1) {
+    if (analyzers.stream().map(analyzer -> analyzer.getClass().getName().equals(SONAR_PLUGIN_NAME)).count() >= 1) {
+      System.out.println("prepare analysis");
       sonarQubeService.prepareSonarAnalysis(
-              commit.getHash(),
+              LongToHashMapper.longToHash(commit.getHash()),
               coderadarConfigurationProperties.getWorkdir()
                       + "/projects/"
                       + project.getWorkdirName());
+      System.out.println("prepare finished");
     }
 
     // pass commit hash (used as project name in sonar) to analyzer
-    analyzerStream
+    analyzers.stream()
+            .filter(analyzer -> analyzer.getClass().getName().equals(SONAR_PLUGIN_NAME))
             .map(ConfigurableAnalyzerPlugin.class::cast)
             .forEach(analyzer -> analyzer.configure(String.valueOf(commit.getHash()).getBytes(StandardCharsets.UTF_8)));
 
@@ -66,7 +69,7 @@ public class AnalyzeCommitService {
                 metricValues.addAll(getMetrics(fileMetrics, commit.getId(), fileId)));
 
     // if sonar scanner plugin is configured, clean up project
-    if (analyzerStream.count() >= 1) {
+    if (analyzers.stream().filter(analyzer -> analyzer.getClass().getName().equals(SONAR_PLUGIN_NAME)).count() >= 1) {
       sonarQubeService.cleanUpSonarAnalysis(commit.getHash());
     }
 
