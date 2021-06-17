@@ -11,13 +11,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UpdatePointsForUserService implements UpdateCoinsForUserUseCase {
 
-    private final GetUserPort getUserPort;
-    private final UpdateUserPort updateUserPort;
+  private final GetUserPort getUserPort;
+  private final UpdateUserPort updateUserPort;
 
-    @Override
-    public void updateCoinsForUser(Long userId, int coins) {
-        User user = getUserPort.getUser(userId);
-        user.setCoins(user.getCoins() + coins);
-        updateUserPort.updateUser(user);
-    }
+  @Override
+  public void updateCoinsForUser(Long userId, int coins) {
+    User user = getUserPort.getUser(userId);
+    user.setCoins(user.getCoins() + coins);
+    updateUserPort.updateUser(user);
+  }
 }

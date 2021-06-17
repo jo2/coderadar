@@ -11,4 +11,9 @@ import lombok.NoArgsConstructor;
 public class UpdateContributorCommand {
   @NotBlank private String displayName;
   @NotBlank private int pointsOverAll;
+
+  public UpdateContributorCommand(String displayName) {
+    this.displayName = displayName;
+    this.pointsOverAll = 0;
+  }
 }

@@ -16,27 +16,25 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RemoveContributorFromUserService implements RemoveContributorFromUserUseCase {
 
-    private final GetUserPort getUserPort;
-    private final GetContributorPort getContributorPort;
-    private final RemoveContributorFromUserPort removeContributorFromUserPort;
+  private final GetUserPort getUserPort;
+  private final GetContributorPort getContributorPort;
+  private final RemoveContributorFromUserPort removeContributorFromUserPort;
 
-    private static final Logger logger = LoggerFactory.getLogger(RemoveContributorFromUserService.class);
+  private static final Logger logger =
+      LoggerFactory.getLogger(RemoveContributorFromUserService.class);
 
-    @Override
-    public void removeContributor(Long contributorId, Long userId) {
-        if (!getContributorPort.existsById(contributorId)) {
-            throw new ContributorNotFoundException(contributorId);
-        }
-        if (!getUserPort.existsById(userId)) {
-            throw new UserNotFoundException(userId);
-        }
-        if (!getContributorPort.existsByIdAndUserId(contributorId, userId)) {
-            throw new ContributorByUserNotFoundException(contributorId, userId);
-        }
-        removeContributorFromUserPort.removeContributor(contributorId, userId);
-        logger.info(
-                "Removed contributor with id: {} from user with id: {}",
-                userId,
-                contributorId);
+  @Override
+  public void removeContributor(Long contributorId, Long userId) {
+    if (!getContributorPort.existsById(contributorId)) {
+      throw new ContributorNotFoundException(contributorId);
     }
+    if (!getUserPort.existsById(userId)) {
+      throw new UserNotFoundException(userId);
+    }
+    if (!getContributorPort.existsByIdAndUserId(contributorId, userId)) {
+      throw new ContributorByUserNotFoundException(contributorId, userId);
+    }
+    removeContributorFromUserPort.removeContributor(contributorId, userId);
+    logger.info("Removed contributor with id: {} from user with id: {}", userId, contributorId);
+  }
 }

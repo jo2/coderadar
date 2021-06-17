@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  neo4j:
+    image: neo4j:3.5.19
+    ports:
+      - 7687:7687
+      - 7474:7474
+    environment:
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*
+      - NEO4J_dbms_security_procedures_whitelist=apoc.*
+      - NEO4J_dbms_connector_bolt_tls__level=DISABLED
+      - NEO4J_dbms_connector_http_advertised__address=0.0.0.0:7474
+      - NEO4J_dbms_connector_bolt_advertised__address=0.0.0.0:7687
+      - NEO4J_AUTH=neo4j/neo3j
+      - NEO4JLABS_PLUGINS=["apoc"]
+    volumes:
+      - ./volume/plugins:/plugins
+      - ./volume/data:/data
+      - ./volume/import:/import
+
+  coderadar:
+    build: .
+    ports:
+      - 8080:8080
+    environment:
+      spring.data.neo4j.uri: bolt://neo4j:7687
+#      spring.data.neo4j.host: neo4j
+#      spring.data.neo4j.port: 7687
+      coderadar.sonar-url: http://sonarqube:9000/
+    depends_on:
+      - neo4j
+      - sonarqube
+
+  sonarqube:
+    image: sonarqube:8.9.1-community
+    ports:
+      - 9000:9000

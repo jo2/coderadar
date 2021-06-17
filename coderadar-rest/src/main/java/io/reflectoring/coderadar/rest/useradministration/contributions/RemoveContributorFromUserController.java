@@ -12,13 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class RemoveContributorFromUserController implements AbstractBaseController {
-    private final RemoveContributorFromUserUseCase removeContributorFromUserUseCase;
+  private final RemoveContributorFromUserUseCase removeContributorFromUserUseCase;
 
-    @PostMapping(path = "/users/{userId}/contributors/{contributorId}/remove")
-    public ResponseEntity<HttpStatus> removeContributorToUser(
-            @PathVariable long contributorId,
-            @PathVariable long userId) {
-        removeContributorFromUserUseCase.removeContributor(contributorId, userId);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+  @PostMapping(path = "/users/{userId}/contributors/{contributorId}/remove")
+  public ResponseEntity<HttpStatus> removeContributorToUser(
+      @PathVariable long contributorId, @PathVariable long userId) {
+    removeContributorFromUserUseCase.removeContributor(contributorId, userId);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
 }

@@ -8,18 +8,10 @@ import io.reflectoring.coderadar.plugin.api.*;
 import io.reflectoring.coderadar.projectadministration.LongToHashMapper;
 import io.reflectoring.coderadar.vcs.UnableToGetCommitContentException;
 import io.reflectoring.coderadar.vcs.port.driven.GetRawCommitContentPort;
-
-import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 /** Performs analysis on a commit. */
 @Service
@@ -32,7 +24,8 @@ public class AnalyzeCommitService {
   private final CalculateScoreService calculateScoreService;
   private final SonarQubeService sonarQubeService;
 
-  private static final String SONAR_PLUGIN_NAME = "io.reflectoring.coderadar.analyzer.sonarscanner.SonarScannerSourceCodeFileAnalyzerPlugin";
+  private static final String SONAR_PLUGIN_NAME =
+      "io.reflectoring.coderadar.analyzer.sonarscanner.SonarScannerSourceCodeFileAnalyzerPlugin";
 
   /**
    * Analyzes a single commit.
@@ -45,23 +38,26 @@ public class AnalyzeCommitService {
   public List<MetricValue> analyzeCommit(
       AnalyzeCommitDto commit, Project project, List<SourceCodeFileAnalyzerPlugin> analyzers) {
     List<MetricValue> metricValues = new ArrayList<>();
+    System.out.println("prepare analysis for commit " + LongToHashMapper.longToHash(commit.getHash()));
 
     // if sonar scanner plugin is configured, push project at commit to sonarqube for analysis
-    if (analyzers.stream().map(analyzer -> analyzer.getClass().getName().equals(SONAR_PLUGIN_NAME)).count() >= 1) {
-      System.out.println("prepare analysis");
+    if (analyzers.stream()
+            .map(analyzer -> analyzer.getClass().getName().equals(SONAR_PLUGIN_NAME))
+            .count()
+        >= 1) {
       sonarQubeService.prepareSonarAnalysis(
-              LongToHashMapper.longToHash(commit.getHash()),
-              coderadarConfigurationProperties.getWorkdir()
-                      + "/projects/"
-                      + project.getWorkdirName());
-      System.out.println("prepare finished");
+          LongToHashMapper.longToHash(commit.getHash()),
+          coderadarConfigurationProperties.getWorkdir() + "/projects/" + project.getWorkdirName());
     }
 
     // pass commit hash (used as project name in sonar) to analyzer
     analyzers.stream()
-            .filter(analyzer -> analyzer.getClass().getName().equals(SONAR_PLUGIN_NAME))
-            .map(ConfigurableAnalyzerPlugin.class::cast)
-            .forEach(analyzer -> analyzer.configure(String.valueOf(commit.getHash()).getBytes(StandardCharsets.UTF_8)));
+        .filter(analyzer -> analyzer.getClass().getName().equals(SONAR_PLUGIN_NAME))
+        .map(ConfigurableAnalyzerPlugin.class::cast)
+        .forEach(
+            analyzer ->
+                analyzer.configure(
+                        LongToHashMapper.longToHash(commit.getHash()).getBytes(StandardCharsets.UTF_8)));
 
     analyzeBulk(commit.getHash(), commit.getChangedFiles(), analyzers, project)
         .forEach(
@@ -69,7 +65,10 @@ public class AnalyzeCommitService {
                 metricValues.addAll(getMetrics(fileMetrics, commit.getId(), fileId)));
 
     // if sonar scanner plugin is configured, clean up project
-    if (analyzers.stream().filter(analyzer -> analyzer.getClass().getName().equals(SONAR_PLUGIN_NAME)).count() >= 1) {
+    if (analyzers.stream()
+            .filter(analyzer -> analyzer.getClass().getName().equals(SONAR_PLUGIN_NAME))
+            .count()
+        >= 1) {
       sonarQubeService.cleanUpSonarAnalysis(commit.getHash());
     }
 

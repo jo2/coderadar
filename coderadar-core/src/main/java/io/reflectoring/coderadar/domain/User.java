@@ -1,8 +1,7 @@
 package io.reflectoring.coderadar.domain;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 /** User of the application. Has to login to access to functionality */
 @Data

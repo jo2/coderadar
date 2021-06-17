@@ -13,11 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UpdateCoinsForUserController {
 
-    private final UpdateCoinsForUserUseCase updateCoinsForUserUseCase;
+  private final UpdateCoinsForUserUseCase updateCoinsForUserUseCase;
 
-    @PostMapping("/users/{userId}/coins")
-    public ResponseEntity<HttpStatus> updateCoinsForUser(@PathVariable long userId, @RequestBody int coins) {
-        updateCoinsForUserUseCase.updateCoinsForUser(userId, coins);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+  @PostMapping("/users/{userId}/coins")
+  public ResponseEntity<HttpStatus> updateCoinsForUser(
+      @PathVariable long userId, @RequestBody int coins) {
+    updateCoinsForUserUseCase.updateCoinsForUser(userId, coins);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
 }

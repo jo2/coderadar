@@ -30,7 +30,7 @@ public interface ContributorRepository extends Neo4jRepository<ContributorEntity
   void detachContributorFromProject(long contributorId, long projectId);
 
   @Query(
-          "MATCH (c:ContributorEntity)-[r:WORKS_ON]->(p) WHERE ID(p) = {1} AND ID(c) IN {0} DELETE r")
+      "MATCH (c:ContributorEntity)-[r:WORKS_ON]->(p) WHERE ID(p) = {1} AND ID(c) IN {0} DELETE r")
   @Transactional
   void detachContributorsFromProject(List<Long> contributorIds, long projectId);
 

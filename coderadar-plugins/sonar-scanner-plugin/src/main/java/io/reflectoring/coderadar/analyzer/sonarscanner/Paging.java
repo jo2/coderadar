@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Paging {
-    private Double pageIndex;
-    private Double pageSize;
-    private Double total;
+  private Double pageIndex;
+  private Double pageSize;
+  private Double total;
 }

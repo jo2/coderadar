@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Measure {
-    private String metric;
-    private Double value;
-    private Boolean bestValue;
+  private String metric;
+  private Double value;
+  private Boolean bestValue;
 }

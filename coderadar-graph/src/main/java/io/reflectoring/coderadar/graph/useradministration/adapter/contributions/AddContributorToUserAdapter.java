@@ -14,16 +14,20 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AddContributorToUserAdapter implements AddContributorToUserPort {
 
-    private final UserRepository userRepository;
-    private final ContributorRepository contributorRepository;
+  private final UserRepository userRepository;
+  private final ContributorRepository contributorRepository;
 
-    @Override
-    public void addContributor(Long contributorId, Long userId) {
-        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-        ContributorEntity contributor = contributorRepository.findById(contributorId).orElseThrow(() -> new ContributorNotFoundException(contributorId));
-        contributor.setUserId(userId);
-        contributor = contributorRepository.save(contributor);
-        user.getContributors().add(contributor);
-        userRepository.save(user);
-    }
+  @Override
+  public void addContributor(Long contributorId, Long userId) {
+    UserEntity user =
+        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+    ContributorEntity contributor =
+        contributorRepository
+            .findById(contributorId)
+            .orElseThrow(() -> new ContributorNotFoundException(contributorId));
+    contributor.setUserId(userId);
+    contributor = contributorRepository.save(contributor);
+    user.getContributors().add(contributor);
+    userRepository.save(user);
+  }
 }

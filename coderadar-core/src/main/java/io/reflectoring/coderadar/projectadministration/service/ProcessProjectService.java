@@ -45,6 +45,7 @@ public class ProcessProjectService {
               runnable.run();
             } catch (Exception e) {
               logger.error(String.format("Project ID:%d, %s", projectId, e.getMessage()));
+              e.printStackTrace();
             } finally { // No matter what happens, reset the flag
               projectStatusPort.setBeingProcessed(projectId, false);
               tasks.remove(projectId);

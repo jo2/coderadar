@@ -12,13 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class AddContributorToUserController implements AbstractBaseController {
-    private final AddContributorToUserUseCase addContributorToUserUseCase;
+  private final AddContributorToUserUseCase addContributorToUserUseCase;
 
-    @PostMapping(path = "/users/{userId}/contributors/{contributorId}/add")
-    public ResponseEntity<HttpStatus> addContributorToUser(
-            @PathVariable long contributorId,
-            @PathVariable long userId) {
-        addContributorToUserUseCase.addContributor(contributorId, userId);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+  @PostMapping(path = "/users/{userId}/contributors/{contributorId}/add")
+  public ResponseEntity<HttpStatus> addContributorToUser(
+      @PathVariable long contributorId, @PathVariable long userId) {
+    addContributorToUserUseCase.addContributor(contributorId, userId);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
 }

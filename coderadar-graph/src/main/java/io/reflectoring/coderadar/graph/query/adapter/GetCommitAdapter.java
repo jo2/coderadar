@@ -11,26 +11,26 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class GetCommitAdapter implements GetCommitPort {
 
-    private final CommitRepository commitRepository;
-    private final CommitBaseDataMapper commitBaseDataMapper = new CommitBaseDataMapper();
+  private final CommitRepository commitRepository;
+  private final CommitBaseDataMapper commitBaseDataMapper = new CommitBaseDataMapper();
 
-    @Override
-    public Commit getCommitById(long commitId) {
-        return commitBaseDataMapper.mapGraphObject(commitRepository.findById(commitId).orElseThrow());
-    }
+  @Override
+  public Commit getCommitById(long commitId) {
+    return commitBaseDataMapper.mapGraphObject(commitRepository.findById(commitId).orElseThrow());
+  }
 
-    @Override
-    public boolean existsById(long commitId) {
-        return commitRepository.existsById(commitId);
-    }
+  @Override
+  public boolean existsById(long commitId) {
+    return commitRepository.existsById(commitId);
+  }
 
-    @Override
-    public Commit getCommitByHash(String hash) {
-        return commitBaseDataMapper.mapGraphObject(commitRepository.findByHash(hash));
-    }
+  @Override
+  public Commit getCommitByHash(String hash) {
+    return commitBaseDataMapper.mapGraphObject(commitRepository.findByHash(hash));
+  }
 
-    @Override
-    public boolean existsByHash(String hash) {
-        return commitRepository.existsByHash(hash);
-    }
+  @Override
+  public boolean existsByHash(String hash) {
+    return commitRepository.existsByHash(hash);
+  }
 }

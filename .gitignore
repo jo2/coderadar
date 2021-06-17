@@ -10,6 +10,7 @@ coderadar-test/coderadar-workdir/
 coderadar-test/src/test/resources/test-clone
 coderadar-ui/node_modules
 coderadar-ui/dist
+volume
 
 ### Eclipse ###
 

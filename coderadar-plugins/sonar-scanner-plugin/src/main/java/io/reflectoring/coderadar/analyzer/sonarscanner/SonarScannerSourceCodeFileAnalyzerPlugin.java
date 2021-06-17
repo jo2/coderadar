@@ -1,21 +1,22 @@
 package io.reflectoring.coderadar.analyzer.sonarscanner;
 
 import io.reflectoring.coderadar.plugin.api.*;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.*;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+
+@Slf4j
 public class SonarScannerSourceCodeFileAnalyzerPlugin
-        implements SourceCodeFileAnalyzerPlugin, ConfigurableAnalyzerPlugin {
+    implements SourceCodeFileAnalyzerPlugin, ConfigurableAnalyzerPlugin {
 
-  private static final String BASE_URL = "http://localhost:9000/api/measures/component_tree";
+  private static final String BASE_URL = "http://sonarqube:9000/api/measures/component_tree";
 
-  private static final List<String> METRICS = List.of(
+  private static final List<String> METRICS =
+      List.of(
           "test_success_density", // -> Zuverlässigkeit, Reifegrad
           "uncovered_lines", // -> Zuverlässigkeit, Reifegrad
           "cognitive_complexity", // -> Analysierbarkeit, Reifegrad
@@ -35,37 +36,59 @@ public class SonarScannerSourceCodeFileAnalyzerPlugin
   private static final String METRICS_STRING = "?metricKeys=" + String.join(",", METRICS);
   private static final String STRATEGY = "&strategy=leaves";
   private static final String PAGE_SIZE = "&ps=500";
-  private static final String TOKEN = "564b0cdaa4b2b935648e3397ccf33d77cf224c32";
+  private String token = "fcd207855a530bbc7127109f56d8dc0a3ced6662";
 
   private final Map<String, Component> componentMap = new HashMap<>();
 
-  public SonarScannerSourceCodeFileAnalyzerPlugin() {
-    init("coderadar");
-  }
+  public SonarScannerSourceCodeFileAnalyzerPlugin() {}
 
   private void init(String projectName) {
     RestTemplate restTemplate = new RestTemplate();
     try {
-      ResponseEntity<MeasureResponse> call = restTemplate.postForEntity(
+      ResponseEntity<MeasureResponse> call =
+          restTemplate.exchange(
               BASE_URL + METRICS_STRING + STRATEGY + PAGE_SIZE + "&component=" + projectName,
-              new HttpEntity(createHeaders(TOKEN)),
-              MeasureResponse.class
-      );
-      MeasureResponse pageOneResponse = call.getBody();
-      Objects.requireNonNull(pageOneResponse).getComponents()
-              .forEach(component -> this.componentMap.put(component.getPath(), component));
+              HttpMethod.GET,
+              new HttpEntity<>(createHeaders(token)),
+              MeasureResponse.class);
 
-      double pageCount = Math.ceil(pageOneResponse.getPaging().getTotal() / pageOneResponse.getPaging().getPageSize());
-      for (int index = 2; index <= pageCount; index++) {
-        MeasureResponse nextPageResponse = restTemplate.postForEntity(
-                BASE_URL + METRICS + STRATEGY + PAGE_SIZE + "&component=" + projectName + "&p=" + index,
-                new HttpEntity(createHeaders(TOKEN)),
-                MeasureResponse.class
-        ).getBody();
-        Objects.requireNonNull(nextPageResponse).getComponents()
+      if (!call.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
+        MeasureResponse pageOneResponse = call.getBody();
+        Objects.requireNonNull(pageOneResponse)
+                .getComponents()
                 .forEach(component -> this.componentMap.put(component.getPath(), component));
+
+        System.out.println(pageOneResponse);
+
+        double pageCount =
+                Math.ceil(
+                        pageOneResponse.getPaging().getTotal() / pageOneResponse.getPaging().getPageSize());
+        for (int index = 2; index <= pageCount; index++) {
+          MeasureResponse nextPageResponse =
+                  restTemplate
+                          .exchange(
+                                  BASE_URL
+                                          + METRICS
+                                          + STRATEGY
+                                          + PAGE_SIZE
+                                          + "&component="
+                                          + projectName
+                                          + "&p="
+                                          + index,
+                                  HttpMethod.GET,
+                                  new HttpEntity<>(createHeaders(token)),
+                                  MeasureResponse.class)
+                          .getBody();
+          Objects.requireNonNull(nextPageResponse)
+                  .getComponents()
+                  .forEach(component -> this.componentMap.put(component.getPath(), component));
+        }
+        log.info("Files found: {}", this.componentMap.size());
+      } else {
+        log.error("Commit not analyzed: {}", projectName);
       }
-      System.out.println("configured: " + this.componentMap.size());
+
+
     } catch (RestClientException e) {
       e.printStackTrace();
     }
@@ -85,11 +108,14 @@ public class SonarScannerSourceCodeFileAnalyzerPlugin
     try {
       Component fileComponent = this.componentMap.get(filepath);
       FileMetrics fileMetrics = new FileMetrics();
-      fileComponent.getMeasures().forEach(measure -> fileMetrics.addFinding(
-              new Metric("sonarscanner:" + measure.getMetric()),
-              new Finding(0, 0, ""),
-              (int) Math.round(measure.getValue())
-      ));
+      fileComponent
+          .getMeasures()
+          .forEach(
+              measure ->
+                  fileMetrics.addFinding(
+                      new Metric("sonarscanner:" + measure.getMetric()),
+                      new Finding(0, 0, ""),
+                      (int) Math.round(measure.getValue())));
       return fileMetrics;
     } catch (Exception e) {
       e.printStackTrace();
@@ -98,12 +124,20 @@ public class SonarScannerSourceCodeFileAnalyzerPlugin
   }
 
   private HttpHeaders createHeaders(String token) {
-    return new HttpHeaders() {{
-      String auth = token + ":";
-      byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes());
-      String authHeader = "Basic " + new String( encodedAuth );
-      set( "Authorization", authHeader );
-    }};
+    return new HttpHeaders() {
+      {
+        String auth = token + ":";
+        byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes());
+        String authHeader = "Basic " + new String(encodedAuth);
+        set("Authorization", authHeader);
+      }
+    };
+  }
+
+  private HttpHeaders createHeaders() {
+    return new HttpHeaders() {
+      {}
+    };
   }
 
   @Override

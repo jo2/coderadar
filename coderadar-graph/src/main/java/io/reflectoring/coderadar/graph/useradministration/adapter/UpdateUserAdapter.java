@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UpdateUserAdapter implements UpdateUserPort {
 
-    private final UserRepository userRepository;
-    private final UserMapper userMapper = new UserMapper();
+  private final UserRepository userRepository;
+  private final UserMapper userMapper = new UserMapper();
 
-    @Override
-    public void updateUser(User user) {
-        userRepository.save(userMapper.mapDomainObject(user));
-    }
+  @Override
+  public void updateUser(User user) {
+    userRepository.save(userMapper.mapDomainObject(user));
+  }
 }

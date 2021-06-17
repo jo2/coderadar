@@ -15,24 +15,21 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AddContributorToUserService implements AddContributorToUserUseCase {
 
-    private final GetUserPort getUserPort;
-    private final GetContributorPort getContributorPort;
-    private final AddContributorToUserPort addContributorToUserPort;
+  private final GetUserPort getUserPort;
+  private final GetContributorPort getContributorPort;
+  private final AddContributorToUserPort addContributorToUserPort;
 
-    private static final Logger logger = LoggerFactory.getLogger(AddContributorToUserService.class);
+  private static final Logger logger = LoggerFactory.getLogger(AddContributorToUserService.class);
 
-    @Override
-    public void addContributor(Long contributorId, Long userId) {
-        if (!getContributorPort.existsById(contributorId)) {
-            throw new ContributorNotFoundException(contributorId);
-        }
-        if (!getUserPort.existsById(userId)) {
-            throw new UserNotFoundException(userId);
-        }
-        addContributorToUserPort.addContributor(contributorId, userId);
-        logger.info(
-                "Added contributor with id: {} to user with id: {}",
-                userId,
-                contributorId);
+  @Override
+  public void addContributor(Long contributorId, Long userId) {
+    if (!getContributorPort.existsById(contributorId)) {
+      throw new ContributorNotFoundException(contributorId);
     }
+    if (!getUserPort.existsById(userId)) {
+      throw new UserNotFoundException(userId);
+    }
+    addContributorToUserPort.addContributor(contributorId, userId);
+    logger.info("Added contributor with id: {} to user with id: {}", userId, contributorId);
+  }
 }
