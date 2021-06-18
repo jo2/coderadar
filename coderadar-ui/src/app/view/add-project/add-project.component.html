@@ -36,6 +36,10 @@
                      type="text">
             </mat-form-field>
             <mat-form-field>
+              <input [(ngModel)]="project.buildCommand" matInput maxlength="100" name="buildCommand" placeholder="Build command"
+                     type="text">
+            </mat-form-field>
+            <mat-form-field>
               <input [(ngModel)]="project.startDate" matInput name="startDate"
                      placeholder="Start date - leave empty to start with first commit" type="date">
             </mat-form-field>

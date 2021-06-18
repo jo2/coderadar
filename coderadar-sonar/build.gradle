@@ -1,0 +1,16 @@
+apply plugin: "com.diffplug.gradle.spotless"
+apply plugin: "jacoco"
+
+dependencies {
+    compile project(':coderadar-core')
+
+    compile "org.springframework.boot:spring-boot-starter-web:${version_spring_boot}"
+    compile "org.springframework.boot:spring-boot-starter-security:${version_spring_boot}"
+    testCompile "org.springframework.boot:spring-boot-starter-test:${version_spring_boot}"
+}
+
+spotless {
+    java {
+        googleJavaFormat()
+    }
+}

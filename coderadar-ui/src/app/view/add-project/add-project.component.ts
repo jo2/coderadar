@@ -39,6 +39,11 @@ export class AddProjectComponent {
       return;
     }
 
+    console.log(this.project.buildCommand);
+    // @ts-ignore
+    this.project.buildCommand = this.project.buildCommand.replaceAll('\&', '%26');
+    console.log(this.project.buildCommand);
+
     this.projectService.addProject(this.project)
       .then(response => {
         this.project.id = response.body.id;

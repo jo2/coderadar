@@ -39,7 +39,8 @@ class GetAvailableMetricsInProjectControllerTest extends ControllerTestTemplate 
             Objects.requireNonNull(testRepoURL).toString(),
             false,
             null,
-            "master");
+            "master",
+            "");
     MvcResult result =
         mvc()
             .perform(

@@ -25,6 +25,8 @@ public class CreateProjectController implements AbstractBaseController {
       path = "/projects")
   public ResponseEntity<IdResponse> createProject(
       @RequestBody @Validated CreateProjectCommand command) throws MalformedURLException {
+    System.out.println("test");
+    System.out.println(command);
     return new ResponseEntity<>(
         new IdResponse(createProjectUseCase.createProject(command)), HttpStatus.CREATED);
   }

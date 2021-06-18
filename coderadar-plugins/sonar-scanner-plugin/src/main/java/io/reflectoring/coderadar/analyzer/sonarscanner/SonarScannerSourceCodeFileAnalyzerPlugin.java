@@ -3,7 +3,6 @@ package io.reflectoring.coderadar.analyzer.sonarscanner;
 import io.reflectoring.coderadar.plugin.api.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.web.client.RestClientException;
@@ -36,11 +35,8 @@ public class SonarScannerSourceCodeFileAnalyzerPlugin
   private static final String METRICS_STRING = "?metricKeys=" + String.join(",", METRICS);
   private static final String STRATEGY = "&strategy=leaves";
   private static final String PAGE_SIZE = "&ps=500";
-  private String token = "fcd207855a530bbc7127109f56d8dc0a3ced6662";
 
   private final Map<String, Component> componentMap = new HashMap<>();
-
-  public SonarScannerSourceCodeFileAnalyzerPlugin() {}
 
   private void init(String projectName) {
     RestTemplate restTemplate = new RestTemplate();
@@ -49,45 +45,42 @@ public class SonarScannerSourceCodeFileAnalyzerPlugin
           restTemplate.exchange(
               BASE_URL + METRICS_STRING + STRATEGY + PAGE_SIZE + "&component=" + projectName,
               HttpMethod.GET,
-              new HttpEntity<>(createHeaders(token)),
+              new HttpEntity<>(createHeaders()),
               MeasureResponse.class);
 
       if (!call.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
         MeasureResponse pageOneResponse = call.getBody();
         Objects.requireNonNull(pageOneResponse)
-                .getComponents()
-                .forEach(component -> this.componentMap.put(component.getPath(), component));
-
-        System.out.println(pageOneResponse);
+            .getComponents()
+            .forEach(component -> this.componentMap.put(component.getPath(), component));
 
         double pageCount =
-                Math.ceil(
-                        pageOneResponse.getPaging().getTotal() / pageOneResponse.getPaging().getPageSize());
+            Math.ceil(
+                pageOneResponse.getPaging().getTotal() / pageOneResponse.getPaging().getPageSize());
         for (int index = 2; index <= pageCount; index++) {
           MeasureResponse nextPageResponse =
-                  restTemplate
-                          .exchange(
-                                  BASE_URL
-                                          + METRICS
-                                          + STRATEGY
-                                          + PAGE_SIZE
-                                          + "&component="
-                                          + projectName
-                                          + "&p="
-                                          + index,
-                                  HttpMethod.GET,
-                                  new HttpEntity<>(createHeaders(token)),
-                                  MeasureResponse.class)
-                          .getBody();
+              restTemplate
+                  .exchange(
+                      BASE_URL
+                          + METRICS
+                          + STRATEGY
+                          + PAGE_SIZE
+                          + "&component="
+                          + projectName
+                          + "&p="
+                          + index,
+                      HttpMethod.GET,
+                      new HttpEntity<>(createHeaders()),
+                      MeasureResponse.class)
+                  .getBody();
           Objects.requireNonNull(nextPageResponse)
-                  .getComponents()
-                  .forEach(component -> this.componentMap.put(component.getPath(), component));
+              .getComponents()
+              .forEach(component -> this.componentMap.put(component.getPath(), component));
         }
         log.info("Files found: {}", this.componentMap.size());
       } else {
         log.error("Commit not analyzed: {}", projectName);
       }
-
 
     } catch (RestClientException e) {
       e.printStackTrace();
@@ -102,6 +95,7 @@ public class SonarScannerSourceCodeFileAnalyzerPlugin
   @Override
   public FileMetrics analyzeFile(String filepath, byte[] fileContent) {
     if (!componentMap.containsKey(filepath)) {
+      log.info("No results for {}", filepath);
       return new FileMetrics();
     }
     System.out.println(filepath);
@@ -123,20 +117,14 @@ public class SonarScannerSourceCodeFileAnalyzerPlugin
     return new FileMetrics();
   }
 
-  private HttpHeaders createHeaders(String token) {
+  private HttpHeaders createHeaders() {
     return new HttpHeaders() {
       {
-        String auth = token + ":";
+        String auth = "admin:coderadar";
         byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes());
         String authHeader = "Basic " + new String(encodedAuth);
         set("Authorization", authHeader);
       }
-    };
-  }
-
-  private HttpHeaders createHeaders() {
-    return new HttpHeaders() {
-      {}
     };
   }
 

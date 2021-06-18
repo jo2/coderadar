@@ -59,6 +59,8 @@ export class ProjectService {
    * @param project The project to add.
    */
   public addProject(project: Project): Promise<HttpResponse<any>> {
+    console.log(project);
+    console.log(JSON.stringify(project));
     return this.httpClient.post<any>(this.apiURL + 'projects', JSON.stringify(project), {observe: 'response'}).toPromise();
   }
 

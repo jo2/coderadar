@@ -24,6 +24,7 @@ public class ProjectEntity {
   private byte[] vcsPassword;
   private Date vcsStart;
   private String defaultBranch;
+  private String buildCommand;
 
   private boolean isBeingProcessed = false;
   private boolean isBeingDeleted = false;

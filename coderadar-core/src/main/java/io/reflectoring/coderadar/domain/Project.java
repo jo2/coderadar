@@ -14,4 +14,5 @@ public class Project {
   private byte[] vcsPassword;
   private Date vcsStart;
   private String defaultBranch;
+  private String buildCommand;
 }

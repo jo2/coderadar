@@ -10,3 +10,5 @@ include 'coderadar-vcs'
 include 'coderadar-test'
 include 'coderadar-ui'
 include 'coderadar-dependency-map'
+include 'coderadar-sonar'
+

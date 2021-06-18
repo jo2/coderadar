@@ -166,6 +166,7 @@ public class CreateProjectService implements CreateProjectUseCase {
     project.setVcsPassword(PasswordUtil.encrypt(command.getVcsPassword()));
     project.setDefaultBranch(command.getDefaultBranch());
     project.setVcsStart(command.getStartDate());
+    project.setBuildCommand(command.getBuildCommand());
     long projectId = createProjectPort.createProject(project);
     project.setId(projectId);
     return project;
