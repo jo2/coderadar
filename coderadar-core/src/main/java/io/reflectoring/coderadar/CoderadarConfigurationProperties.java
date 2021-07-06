@@ -35,6 +35,8 @@ public class CoderadarConfigurationProperties {
 
   @NotNull private Locale dateLocale = Locale.ENGLISH;
 
+  @NotNull private String sonarUrl;
+
   private Authentication authentication = new Authentication();
 
   @PostConstruct
@@ -53,6 +55,7 @@ public class CoderadarConfigurationProperties {
         this.authentication.refreshTokenDurationInMinutes);
     logger.info(
         CONFIG_PARAM_LOG_PATTERN, "coderadar.authentication.enabled", this.authentication.enabled);
+    logger.info(CONFIG_PARAM_LOG_PATTERN, "coderadar.sonarUrl", this.sonarUrl);
   }
 
   @PostConstruct

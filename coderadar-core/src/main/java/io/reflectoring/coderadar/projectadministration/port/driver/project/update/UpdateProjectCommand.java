@@ -19,4 +19,5 @@ public class UpdateProjectCommand {
   private boolean vcsOnline;
   private Date startDate;
   @NotBlank private String defaultBranch;
+  private String buildCommand;
 }

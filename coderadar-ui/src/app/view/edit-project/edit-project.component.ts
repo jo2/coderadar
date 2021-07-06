@@ -50,6 +50,8 @@ export class EditProjectComponent implements OnInit {
   submitForm(): void {
     if (!this.validateInput()) {
       this.waiting = true;
+      // @ts-ignore
+      this.project.buildCommand = this.project.buildCommand.replaceAll('\&', '%26');
       this.projectService.editProject(this.project)
         .then(() => {
           this.router.navigate(['/dashboard']);

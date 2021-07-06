@@ -3,13 +3,11 @@ package io.reflectoring.coderadar.analyzer.service;
 import com.google.common.collect.Maps;
 import io.reflectoring.coderadar.CoderadarConfigurationProperties;
 import io.reflectoring.coderadar.analyzer.domain.*;
-import io.reflectoring.coderadar.analyzer.port.driven.SonarQubePort;
 import io.reflectoring.coderadar.domain.Project;
 import io.reflectoring.coderadar.plugin.api.*;
 import io.reflectoring.coderadar.projectadministration.LongToHashMapper;
 import io.reflectoring.coderadar.vcs.UnableToGetCommitContentException;
 import io.reflectoring.coderadar.vcs.port.driven.GetRawCommitContentPort;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,10 +21,6 @@ public class AnalyzeCommitService {
   private final GetRawCommitContentPort getRawCommitContentPort;
   private final CoderadarConfigurationProperties coderadarConfigurationProperties;
   private final CalculateScoreService calculateScoreService;
-  private final SonarQubePort sonarQubePort;
-
-  private static final String SONAR_PLUGIN_NAME =
-      "io.reflectoring.coderadar.analyzer.sonarscanner.SonarScannerSourceCodeFileAnalyzerPlugin";
 
   /**
    * Analyzes a single commit.
@@ -40,39 +34,34 @@ public class AnalyzeCommitService {
       AnalyzeCommitDto commit, Project project, List<SourceCodeFileAnalyzerPlugin> analyzers) {
     List<MetricValue> metricValues = new ArrayList<>();
 
-    // if sonar scanner plugin is configured, push project at commit to sonarqube for analysis
-    if (analyzers.stream()
-            .map(analyzer -> analyzer.getClass().getName().equals(SONAR_PLUGIN_NAME))
-            .count()
-        >= 1) {
-      sonarQubePort.prepareSonarAnalysis(
-          LongToHashMapper.longToHash(commit.getHash()),
-          coderadarConfigurationProperties.getWorkdir() + "/projects/" + project.getWorkdirName(),
-          project.getBuildCommand());
-    }
-
-    // pass commit hash (used as project name in sonar) to analyzer
+    // call prepareAnalysis for all analyzers that need preparation
     analyzers.stream()
-        .filter(analyzer -> analyzer.getClass().getName().equals(SONAR_PLUGIN_NAME))
-        .map(ConfigurableAnalyzerPlugin.class::cast)
+        .filter(WrappedAnalyzingProcess.class::isInstance)
         .forEach(
             analyzer ->
-                analyzer.configure(
-                    LongToHashMapper.longToHash(commit.getHash())
-                        .getBytes(StandardCharsets.UTF_8)));
+                ((WrappedAnalyzingProcess) analyzer)
+                    .prepareAnalysis(
+                        LongToHashMapper.longToHash(commit.getHash()),
+                        coderadarConfigurationProperties.getWorkdir()
+                            + "/projects/"
+                            + project.getWorkdirName(),
+                        project.getBuildCommand(),
+                        coderadarConfigurationProperties.getSonarUrl()));
 
     analyzeBulk(commit.getHash(), commit.getChangedFiles(), analyzers, project)
         .forEach(
             (fileId, fileMetrics) ->
                 metricValues.addAll(getMetrics(fileMetrics, commit.getId(), fileId)));
 
-    // if sonar scanner plugin is configured, clean up project
-    if (analyzers.stream()
-            .filter(analyzer -> analyzer.getClass().getName().equals(SONAR_PLUGIN_NAME))
-            .count()
-        >= 1) {
-      sonarQubePort.cleanUpSonarAnalysis(LongToHashMapper.longToHash(commit.getHash()));
-    }
+    // call postprocessAnalysis for all analyzers that need postprocessing
+    analyzers.stream()
+        .filter(WrappedAnalyzingProcess.class::isInstance)
+        .forEach(
+            analyzer ->
+                ((WrappedAnalyzingProcess) analyzer)
+                    .postprocessAnalysis(
+                        LongToHashMapper.longToHash(commit.getHash()),
+                        coderadarConfigurationProperties.getSonarUrl()));
 
     calculateScoreService.calculateScoreForCommit(commit, metricValues);
     return metricValues;

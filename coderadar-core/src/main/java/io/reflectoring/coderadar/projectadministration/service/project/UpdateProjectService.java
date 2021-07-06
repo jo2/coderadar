@@ -4,6 +4,7 @@ import static io.reflectoring.coderadar.projectadministration.service.project.Cr
 
 import io.reflectoring.coderadar.CoderadarConfigurationProperties;
 import io.reflectoring.coderadar.analyzer.port.driven.ResetAnalysisPort;
+import io.reflectoring.coderadar.analyzer.port.driver.StartAnalyzingUseCase;
 import io.reflectoring.coderadar.contributor.port.driven.ComputeContributorsPort;
 import io.reflectoring.coderadar.contributor.port.driven.ListContributorsPort;
 import io.reflectoring.coderadar.contributor.port.driven.RemoveContributorPort;
@@ -53,6 +54,7 @@ public class UpdateProjectService implements UpdateProjectUseCase {
   private final SaveContributorsPort saveContributorsPort;
   private final RemoveContributorPort removeContributorPort;
   private final ListContributorsPort listContributorsPort;
+  private final StartAnalyzingUseCase startAnalyzingUseCase;
 
   private static final Logger logger = LoggerFactory.getLogger(UpdateProjectService.class);
 
@@ -67,6 +69,7 @@ public class UpdateProjectService implements UpdateProjectUseCase {
 
     project.setName(command.getName());
     project.setDefaultBranch(command.getDefaultBranch());
+    project.setBuildCommand(command.getBuildCommand());
     project.setVcsUsername(command.getVcsUsername());
     if (command.getVcsPassword() != null && !command.getVcsPassword().isEmpty()) {
       project.setVcsPassword(PasswordUtil.encrypt(command.getVcsPassword()));
@@ -125,6 +128,7 @@ public class UpdateProjectService implements UpdateProjectUseCase {
           },
           projectId);
     }
+
     updateProjectPort.update(project);
     logger.info("Updated project {} with id {}", project.getName(), project.getId());
   }

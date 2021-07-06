@@ -16,4 +16,5 @@ public class GetProjectResponse {
   private String vcsUrl;
   private Date startDate;
   private String defaultBranch;
+  private String buildCommand;
 }

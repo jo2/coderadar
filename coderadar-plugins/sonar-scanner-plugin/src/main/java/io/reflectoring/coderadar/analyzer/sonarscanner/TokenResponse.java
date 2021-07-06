@@ -1,4 +1,4 @@
-package io.reflectoring.coderadar.sonar.domain;
+package io.reflectoring.coderadar.analyzer.sonarscanner;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

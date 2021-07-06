@@ -24,6 +24,7 @@ public class UpdateProjectAdapter implements UpdateProjectPort {
             .setVcsPassword(project.getVcsPassword())
             .setVcsUrl(project.getVcsUrl())
             .setDefaultBranch(project.getDefaultBranch())
+            .setBuildCommand(project.getBuildCommand())
             .setWorkdirName(project.getWorkdirName()));
   }
 }
