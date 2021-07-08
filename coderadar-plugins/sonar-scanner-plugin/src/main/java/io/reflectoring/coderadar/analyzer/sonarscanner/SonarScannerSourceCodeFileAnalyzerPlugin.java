@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.http.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -87,6 +88,7 @@ public class SonarScannerSourceCodeFileAnalyzerPlugin
 
   @Override
   public void prepareAnalysis(String commit, String workDir, String buildCommand, String sonarUrl) {
+    log.debug("Prepare analysis for commit {}", commit);
     String token = createProject(commit, sonarUrl);
     buildAndAnalyze(commit, sonarUrl, buildCommand, workDir, token);
 
@@ -158,8 +160,18 @@ public class SonarScannerSourceCodeFileAnalyzerPlugin
     String token = tokenResponse.getBody().getToken();
 
     String createQuery = sonarUrl + "api/projects/create?name=" + commit + "&project=" + commit;
-    restTemplate.exchange(
-        createQuery, HttpMethod.POST, new HttpEntity(createHeaders()), String.class);
+
+    try {
+      restTemplate.exchange(
+              createQuery, HttpMethod.POST, new HttpEntity(createHeaders()), String.class);
+    } catch (HttpClientErrorException e) {
+      if (e.getStatusCode().equals(HttpStatus.BAD_REQUEST) && e.getMessage() != null &&
+              e.getMessage().contains("Could not create Project, key already exists")) {
+        log.debug("Project for commit {} already exists, not recreating it", commit);
+      } else {
+        log.error("Error creating project for commit {}", commit, e);
+      }
+    }
     return token;
   }
 
@@ -171,10 +183,24 @@ public class SonarScannerSourceCodeFileAnalyzerPlugin
     String tokenArg = " -D sonar.login=" + token;
     String sonarCommand = "sonar-scanner" + hostArg + projectKeyArg + projectNameArg + tokenArg;
 
-    try (Git git = Git.open(new File(workDir))) {
-      git.checkout().setName(commit).setForced(true).call();
+    try /*(Git git = Git.open(new File(workDir)))*/ {
+      ProcessBuilder gitBuilder = new ProcessBuilder();
+      gitBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
+      gitBuilder.command("sh", "-c", "git checkout -f " + commit);
+      gitBuilder.directory(new File(workDir));
+      Process gitProcess = gitBuilder.start();
+      int gitCode = gitProcess.waitFor();
+      if (gitCode != 0) {
+        log.error("Checkout finished with exit code {} for commit {}", gitCode, commit);
+      } else {
+        log.debug("Checkout finished with exit code {} for commit {}", gitCode, commit);
+      }
+
+//      git.checkout().setName(commit).setForced(true).call();
 
       ProcessBuilder builder = new ProcessBuilder();
+      builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+      builder.redirectError(ProcessBuilder.Redirect.INHERIT);
       String command =
           (buildCommand != null ? formatCommand(workDir, buildCommand) : getBuildCommand(workDir))
               + " && "
@@ -191,9 +217,9 @@ public class SonarScannerSourceCodeFileAnalyzerPlugin
       }
     } catch (IOException | InterruptedException e) {
       log.error("Error during analysing process", e);
-    } catch (GitAPIException e) {
+    } /*catch (GitAPIException e) {
       log.error("Error during git checkout", e);
-    }
+    }*/
   }
 
   private String formatCommand(String workDir, String command) {
