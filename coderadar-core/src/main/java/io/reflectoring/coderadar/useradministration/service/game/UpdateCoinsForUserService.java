@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UpdatePointsForUserService implements UpdateCoinsForUserUseCase {
+public class UpdateCoinsForUserService implements UpdateCoinsForUserUseCase {
 
   private final GetUserPort getUserPort;
   private final UpdateUserPort updateUserPort;
