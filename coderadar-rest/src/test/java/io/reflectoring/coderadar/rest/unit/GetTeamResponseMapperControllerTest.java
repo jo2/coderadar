@@ -46,13 +46,13 @@ class GetTeamResponseMapperControllerTest extends UnitTestTemplate {
     Assertions.assertEquals(1L, responses.get(0).getId());
     Assertions.assertEquals(1L, responses.get(0).getMembers().size());
     Assertions.assertEquals(
-        new GetUserResponse(2L, "testUsername1", true), responses.get(0).getMembers().get(0));
+        TestConstants.getGetUserResponse(2L, "testUsername1", true), responses.get(0).getMembers().get(0));
 
     Assertions.assertEquals("testTeam2", responses.get(1).getName());
     Assertions.assertEquals(3L, responses.get(1).getId());
     Assertions.assertEquals(1L, responses.get(1).getMembers().size());
     Assertions.assertEquals(
-        new GetUserResponse(4L, "testUsername2", false), responses.get(1).getMembers().get(0));
+            TestConstants.getGetUserResponse(4L, "testUsername2", false), responses.get(1).getMembers().get(0));
   }
 
   @Test
@@ -74,6 +74,6 @@ class GetTeamResponseMapperControllerTest extends UnitTestTemplate {
     Assertions.assertEquals(1L, response.getId());
     Assertions.assertEquals(1L, response.getMembers().size());
     Assertions.assertEquals(
-        new GetUserResponse(2L, "testUsername1", false), response.getMembers().get(0));
+            TestConstants.getGetUserResponse(2L, "testUsername1", false), response.getMembers().get(0));
   }
 }

@@ -2,7 +2,6 @@ apply plugin: "com.diffplug.gradle.spotless"
 apply plugin: "jacoco"
 
 dependencies {
-    compile project(':coderadar-plugin-api')
     compile project (':coderadar-core')
     compile "org.springframework.boot:spring-boot-starter-data-neo4j:${version_spring_boot}"
     compile group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.0.16.Final'

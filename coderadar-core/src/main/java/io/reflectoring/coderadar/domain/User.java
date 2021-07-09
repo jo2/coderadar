@@ -11,8 +11,15 @@ public class User {
   private String password;
   private boolean platformAdmin = false;
   private List<Contributor> contributors;
-  private int pointsInLevel;
-  private int pointsOverAll;
+
   private int level;
   private int coins;
+  private int pointsInLevel;
+  private int pointsOverAll;
+  private String title;
+  private String primaryColor;
+  private String secondaryColor;
+  private List<Badge> badges;
+  private List<Badge> publicBadges;
+  private List<Long> solvedQuestIds;
 }
